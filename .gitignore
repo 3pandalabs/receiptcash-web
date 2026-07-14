@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# env files (base .env not covered by the .env*.local rule above)
+.env
