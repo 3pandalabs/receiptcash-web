@@ -16,3 +16,4 @@ npm run android   # or: npm run ios / npm run web
 ## Status
 
 Early scaffold — Expo blank TypeScript template. Supabase integration, receipt OCR, and the points-ledger schema are not yet wired up.
+
