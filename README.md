@@ -1,6 +1,6 @@
 # ReceiptCash (mobile app)
 
-React Native / Expo app for **3PandA Labs**. Users scan/upload receipts, earn cashback points on the bill amount, and redeem points for gifts.
+React Native / Expo app for **3PandaLabs**. Users scan/upload receipts, earn cashback points on the bill amount, and redeem points for gifts.
 
 - Company/app names are still pending final approval — see the planning doc for current status.
 - Backend: Supabase (Postgres + Auth + Storage + Edge Functions), shared with the [receiptcash-web](https://github.com/anprasha-labs/receiptcash-web) site.
