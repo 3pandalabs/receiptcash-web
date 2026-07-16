@@ -35,6 +35,7 @@ Deno.serve(async (req: Request) => {
     const userId = userData.user.id;
 
     const { receiptId } = await req.json();
+    console.log("process-receipt called", { userId, receiptId });
     if (!receiptId) {
       return jsonResponse({ error: "receiptId is required" }, 400);
     }
@@ -48,6 +49,8 @@ Deno.serve(async (req: Request) => {
       .select("id, user_id, storage_path, status")
       .eq("id", receiptId)
       .single();
+
+    console.log("receipt lookup result", { receipt, receiptError });
 
     if (receiptError || !receipt) {
       return jsonResponse({ error: "Receipt not found" }, 404);
