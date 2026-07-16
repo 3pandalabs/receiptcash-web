@@ -48,7 +48,7 @@ export default function Home() {
       </section>
 
       <footer className="mx-auto w-full max-w-5xl px-6 py-8 text-center text-sm text-zinc-500">
-        &copy; {new Date().getFullYear()} 3PandA Labs
+        &copy; {new Date().getFullYear()} 3PandaLabs
       </footer>
     </div>
   );

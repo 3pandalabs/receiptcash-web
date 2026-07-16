@@ -1,6 +1,6 @@
 # ReceiptCash (website)
 
-Next.js site for **3PandA Labs** — marketing/info pages plus the authenticated web account portal (balance, receipt history, redemptions) for the ReceiptCash app.
+Next.js site for **3PandaLabs** — marketing/info pages plus the authenticated web account portal (balance, receipt history, redemptions) for the ReceiptCash app.
 
 - Company/app names are still pending final approval — see the planning doc for current status.
 - Backend: Supabase (Postgres + Auth + Storage + Edge Functions), shared with the [receiptcash-app](https://github.com/3pandalabs/receiptcash-app) mobile app.
