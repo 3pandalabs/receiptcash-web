@@ -1,9 +1,11 @@
 import * as Crypto from "expo-crypto";
-import * as FileSystem from "expo-file-system";
+// SDK 54+ moved the string-based API to a class-based File/Directory API;
+// the legacy import path is Expo's documented compatibility shim.
+import { readAsStringAsync, EncodingType } from "expo-file-system/legacy";
 import { supabase } from "./supabase";
 
 export async function uploadReceipt(userId: string, imageUri: string): Promise<string> {
-  const base64 = await FileSystem.readAsStringAsync(imageUri, { encoding: "base64" });
+  const base64 = await readAsStringAsync(imageUri, { encoding: EncodingType.Base64 });
 
   const contentHash = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, base64);
 
