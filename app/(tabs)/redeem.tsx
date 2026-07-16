@@ -11,6 +11,7 @@ import {
 import { useGifts, type Gift } from "../../hooks/useGifts";
 import { usePointsBalance } from "../../hooks/usePointsBalance";
 import { supabase } from "../../lib/supabase";
+import { getErrorMessage } from "../../lib/errors";
 
 export default function RedeemScreen() {
   const { gifts, isLoading, refresh } = useGifts();
@@ -33,10 +34,7 @@ export default function RedeemScreen() {
       Alert.alert("Redeemed!", `${gift.name} has been redeemed.`);
       await refreshBalance();
     } catch (err) {
-      Alert.alert(
-        "Redemption failed",
-        err instanceof Error ? err.message : "Insufficient balance or unknown error"
-      );
+      Alert.alert("Redemption failed", getErrorMessage(err));
     } finally {
       setRedeemingId(null);
     }

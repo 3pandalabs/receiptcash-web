@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { useReceipts, type Receipt } from "../../hooks/useReceipts";
 import { uploadReceipt } from "../../lib/uploadReceipt";
+import { getErrorMessage } from "../../lib/errors";
 
 export default function ReceiptsScreen() {
   const { session } = useAuth();
@@ -33,7 +34,7 @@ export default function ReceiptsScreen() {
       await uploadReceipt(session.user.id, result.assets[0].uri);
       await refresh();
     } catch (err) {
-      Alert.alert("Upload failed", err instanceof Error ? err.message : "Unknown error");
+      Alert.alert("Upload failed", getErrorMessage(err));
     } finally {
       setIsUploading(false);
     }

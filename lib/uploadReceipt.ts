@@ -46,6 +46,21 @@ export async function uploadReceipt(userId: string, imageUri: string): Promise<s
   });
 
   if (fnError) {
+    // supabase-js's default error message ("Edge Function returned a non-2xx
+    // status code") hides the actual JSON error body the function returned -
+    // read it from the raw Response on `context` to surface the real reason.
+    const context = (fnError as { context?: Response }).context;
+    if (context) {
+      let body: { error?: string } | null = null;
+      try {
+        body = await context.json();
+      } catch {
+        // context wasn't valid JSON - fall through to the generic error below.
+      }
+      if (body) {
+        throw new Error(body.error ?? JSON.stringify(body));
+      }
+    }
     throw fnError;
   }
 
