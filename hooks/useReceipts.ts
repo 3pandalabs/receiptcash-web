@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "./useAuth";
 
@@ -15,6 +15,8 @@ export function useReceipts() {
   const userId = session?.user.id;
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  // See usePointsBalance for why this needs a per-instance-unique channel name.
+  const instanceId = useId();
 
   const refresh = useCallback(async () => {
     if (!userId) return;
@@ -31,7 +33,7 @@ export function useReceipts() {
     refresh();
 
     const channel = supabase
-      .channel(`receipts:${userId}`)
+      .channel(`receipts:${userId}:${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "receipts", filter: `user_id=eq.${userId}` },
@@ -42,7 +44,7 @@ export function useReceipts() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, refresh]);
+  }, [userId, refresh, instanceId]);
 
   return { receipts, isLoading, refresh };
 }
