@@ -13,6 +13,7 @@ import { useAuth } from "../../hooks/useAuth";
 export default function SignInScreen() {
   const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +23,8 @@ export default function SignInScreen() {
     setError(null);
     setIsSubmitting(true);
 
-    const result = mode === "sign-in" ? await signIn(email, password) : await signUp(email, password);
+    const result =
+      mode === "sign-in" ? await signIn(email, password) : await signUp(email, password, name);
 
     setIsSubmitting(false);
     if (result.error) {
@@ -40,6 +42,15 @@ export default function SignInScreen() {
         {mode === "sign-in" ? "Sign in to your account" : "Create an account"}
       </Text>
 
+      {mode === "sign-up" && (
+        <TextInput
+          style={styles.input}
+          placeholder="Name (optional)"
+          autoCapitalize="words"
+          value={name}
+          onChangeText={setName}
+        />
+      )}
       <TextInput
         style={styles.input}
         placeholder="Email"
