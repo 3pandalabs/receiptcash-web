@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 
 type Wallet = {
   user_id: string;
+  email: string;
+  display_name: string | null;
   balance: number;
   updated_at: string;
 };
@@ -16,10 +18,7 @@ export default function WalletsPage() {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const { data } = await supabase
-        .from("points_balances")
-        .select("user_id, balance, updated_at")
-        .order("balance", { ascending: false });
+      const { data } = await supabase.rpc("admin_list_wallets");
       setWallets(data ?? []);
       setIsLoading(false);
     }
@@ -27,9 +26,9 @@ export default function WalletsPage() {
   }, []);
 
   function exportCsv() {
-    const header = "User ID,Balance,Last Updated\n";
+    const header = "Name,Email,User ID,Balance,Last Updated\n";
     const rows = wallets
-      .map((w) => `${w.user_id},${w.balance},${w.updated_at}`)
+      .map((w) => `${w.display_name ?? ""},${w.email},${w.user_id},${w.balance},${w.updated_at}`)
       .join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -60,7 +59,8 @@ export default function WalletsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-200 text-left text-zinc-500 dark:border-zinc-800">
-              <th className="p-3">User</th>
+              <th className="p-3">Name</th>
+              <th className="p-3">Email</th>
               <th className="p-3">Balance</th>
               <th className="p-3">Last updated</th>
             </tr>
@@ -68,7 +68,8 @@ export default function WalletsPage() {
           <tbody>
             {wallets.map((w) => (
               <tr key={w.user_id} className="border-b border-zinc-100 dark:border-zinc-900">
-                <td className="p-3 font-mono text-xs">{w.user_id}</td>
+                <td className="p-3">{w.display_name ?? "—"}</td>
+                <td className="p-3">{w.email}</td>
                 <td className="p-3 font-semibold">{w.balance}</td>
                 <td className="p-3 text-zinc-500">{new Date(w.updated_at).toLocaleString()}</td>
               </tr>
