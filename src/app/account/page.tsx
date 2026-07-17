@@ -24,7 +24,9 @@ export default async function AccountPage() {
         .limit(10),
       supabase
         .from("redemption_orders")
-        .select("id, total_points_cost, status, created_at")
+        .select(
+          "id, total_points_cost, status, tracking_number, created_at, redemption_order_items(quantity, gifts(name))"
+        )
         .order("created_at", { ascending: false })
         .limit(10),
       supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle(),
@@ -100,12 +102,25 @@ export default async function AccountPage() {
         {orders && orders.length > 0 ? (
           <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
             {orders.map((o) => (
-              <li key={o.id} className="flex items-center justify-between px-4 py-3 text-sm">
-                <span>Order {o.id.slice(0, 8)}</span>
-                <span className="flex items-center gap-3">
-                  <span>{o.total_points_cost} pts</span>
-                  <span className="capitalize text-zinc-500">{o.status}</span>
+              <li key={o.id} className="flex flex-col gap-1 px-4 py-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span>Order {o.id.slice(0, 8)}</span>
+                  <span className="flex items-center gap-3">
+                    <span>{o.total_points_cost} pts</span>
+                    <span className="capitalize text-zinc-500">{o.status}</span>
+                  </span>
+                </div>
+                <span className="text-xs text-zinc-500">
+                  {o.redemption_order_items
+                    .map((item) => {
+                      const gift = Array.isArray(item.gifts) ? item.gifts[0] : item.gifts;
+                      return `${item.quantity}x ${gift?.name ?? "Unknown gift"}`;
+                    })
+                    .join(", ")}
                 </span>
+                {o.tracking_number && (
+                  <span className="text-xs text-blue-600">Tracking: {o.tracking_number}</span>
+                )}
               </li>
             ))}
           </ul>
