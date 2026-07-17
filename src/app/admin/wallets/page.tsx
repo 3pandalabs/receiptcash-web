@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -68,7 +69,11 @@ export default function WalletsPage() {
           <tbody>
             {wallets.map((w) => (
               <tr key={w.user_id} className="border-b border-zinc-100 dark:border-zinc-900">
-                <td className="p-3">{w.display_name ?? "—"}</td>
+                <td className="p-3">
+                  <Link href={`/admin/users/${w.user_id}`} className="text-blue-600 hover:underline">
+                    {w.display_name ?? "—"}
+                  </Link>
+                </td>
                 <td className="p-3">{w.email}</td>
                 <td className="p-3 font-semibold">{w.balance}</td>
                 <td className="p-3 text-zinc-500">{new Date(w.updated_at).toLocaleString()}</td>
