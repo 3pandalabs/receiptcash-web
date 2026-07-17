@@ -6,6 +6,8 @@ export type Gift = {
   name: string;
   description: string | null;
   points_cost: number;
+  stock_level: number | null;
+  image_emoji: string | null;
 };
 
 export function useGifts() {
@@ -15,7 +17,7 @@ export function useGifts() {
   const refresh = useCallback(async () => {
     const { data } = await supabase
       .from("gifts")
-      .select("id, name, description, points_cost")
+      .select("id, name, description, points_cost, stock_level, image_emoji")
       .order("points_cost", { ascending: true });
     setGifts(data ?? []);
     setIsLoading(false);

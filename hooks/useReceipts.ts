@@ -6,7 +6,8 @@ export type Receipt = {
   id: string;
   merchant_name: string | null;
   receipt_total: number | null;
-  status: "pending" | "processed" | "rejected" | "duplicate";
+  status: "pending" | "processed" | "rejected" | "duplicate" | "flagged_for_review";
+  status_reason: string | null;
   created_at: string;
 };
 
@@ -22,7 +23,7 @@ export function useReceipts() {
     if (!userId) return;
     const { data } = await supabase
       .from("receipts")
-      .select("id, merchant_name, receipt_total, status, created_at")
+      .select("id, merchant_name, receipt_total, status, status_reason, created_at")
       .order("created_at", { ascending: false });
     setReceipts(data ?? []);
     setIsLoading(false);

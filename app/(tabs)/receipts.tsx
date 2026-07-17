@@ -68,18 +68,26 @@ export default function ReceiptsScreen() {
 function ReceiptRow({ receipt }: { receipt: Receipt }) {
   return (
     <View style={styles.row}>
-      <View>
+      <View style={{ flex: 1 }}>
         <Text style={styles.merchant}>{receipt.merchant_name ?? "Processing..."}</Text>
         <Text style={styles.date}>{new Date(receipt.created_at).toLocaleDateString()}</Text>
+        {receipt.status_reason && (
+          <Text style={styles.reason}>{receipt.status_reason}</Text>
+        )}
       </View>
       <View style={{ alignItems: "flex-end" }}>
         {receipt.receipt_total != null && (
           <Text style={styles.total}>${receipt.receipt_total.toFixed(2)}</Text>
         )}
-        <Text style={[styles.status, statusStyle(receipt.status)]}>{receipt.status}</Text>
+        <Text style={[styles.status, statusStyle(receipt.status)]}>{statusLabel(receipt.status)}</Text>
       </View>
     </View>
   );
+}
+
+function statusLabel(status: Receipt["status"]) {
+  if (status === "flagged_for_review") return "In review";
+  return status;
 }
 
 function statusStyle(status: Receipt["status"]) {
@@ -89,6 +97,8 @@ function statusStyle(status: Receipt["status"]) {
     case "rejected":
     case "duplicate":
       return { color: "#dc2626" };
+    case "flagged_for_review":
+      return { color: "#2563eb" };
     default:
       return { color: "#d97706" };
   }
@@ -116,6 +126,7 @@ const styles = StyleSheet.create({
   },
   merchant: { fontSize: 16, fontWeight: "600" },
   date: { fontSize: 12, color: "#999", marginTop: 2 },
+  reason: { fontSize: 12, color: "#dc2626", marginTop: 4 },
   total: { fontSize: 16, fontWeight: "600" },
   status: { fontSize: 12, marginTop: 2, textTransform: "capitalize" },
 });
