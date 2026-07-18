@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "receiptcash-app",
-    "slug": "receiptcash-app",
+    "name": "ReceiptCash",
+    "slug": "receiptcash",
     "owner": "3pandalabs",
     "scheme": "receiptcash",
     "version": "1.0.0",
