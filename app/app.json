@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "ReceiptCash",
+    "slug": "receiptcash",
+    "owner": "3pandalabs",
+    "scheme": "receiptcash",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.threepanda.receiptcash"
+    },
+    "android": {
+      "package": "com.threepanda.receiptcash",
+      "adaptiveIcon": {
+        "backgroundColor": "#2563eb",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "05097d3f-8b42-4e26-ad0a-bbd8afb5d988"
+      }
+    }
+  }
+}
