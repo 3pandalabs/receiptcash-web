@@ -15,6 +15,16 @@ export async function profileRoutes(app: FastifyInstance) {
     return reply.send(profile);
   });
 
+  // Polling target for the mobile app's usePointsBalance hook (no realtime
+  // push channel in this stack - see ROUTES.md).
+  app.get("/balance", { preHandler: requireAuth }, async (req, reply) => {
+    const [row] = await db
+      .select({ balance: schema.pointsBalances.balance })
+      .from(schema.pointsBalances)
+      .where(eq(schema.pointsBalances.userId, req.userId!));
+    return reply.send({ balance: row?.balance ?? 0 });
+  });
+
   app.patch("/profile", { preHandler: requireAuth, schema: { body: updateProfileBody } }, async (req, reply) => {
     const { displayName } = req.body as z.infer<typeof updateProfileBody>;
     const [profile] = await db

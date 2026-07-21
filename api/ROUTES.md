@@ -24,6 +24,7 @@ No realtime push channel — balance/receipts/orders are plain polling endpoints
 |---|---|---|---|
 | GET | `/profile` | required | — |
 | PATCH | `/profile` | required | `{ displayName }` |
+| GET | `/balance` | required | — `{ balance }` — poll target for the mobile home screen (no realtime push channel, see note above) |
 
 ## Receipts
 
