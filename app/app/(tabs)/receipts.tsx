@@ -15,7 +15,7 @@ import { uploadReceipt } from "../../lib/uploadReceipt";
 import { getErrorMessage } from "../../lib/errors";
 
 export default function ReceiptsScreen() {
-  const { session } = useAuth();
+  const { user } = useAuth();
   const { receipts, isLoading, refresh } = useReceipts();
   const [isUploading, setIsUploading] = useState(false);
 
@@ -27,11 +27,11 @@ export default function ReceiptsScreen() {
     }
 
     const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
-    if (result.canceled || !result.assets?.[0] || !session) return;
+    if (result.canceled || !result.assets?.[0] || !user) return;
 
     setIsUploading(true);
     try {
-      await uploadReceipt(session.user.id, result.assets[0].uri);
+      await uploadReceipt(user.id, result.assets[0].uri);
       await refresh();
     } catch (err) {
       Alert.alert("Upload failed", getErrorMessage(err));
@@ -69,15 +69,15 @@ function ReceiptRow({ receipt }: { receipt: Receipt }) {
   return (
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.merchant}>{receipt.merchant_name ?? "Processing..."}</Text>
-        <Text style={styles.date}>{new Date(receipt.created_at).toLocaleDateString()}</Text>
-        {receipt.status_reason && (
-          <Text style={styles.reason}>{receipt.status_reason}</Text>
+        <Text style={styles.merchant}>{receipt.merchantName ?? "Processing..."}</Text>
+        <Text style={styles.date}>{new Date(receipt.createdAt).toLocaleDateString()}</Text>
+        {receipt.statusReason && (
+          <Text style={styles.reason}>{receipt.statusReason}</Text>
         )}
       </View>
       <View style={{ alignItems: "flex-end" }}>
-        {receipt.receipt_total != null && (
-          <Text style={styles.total}>${receipt.receipt_total.toFixed(2)}</Text>
+        {receipt.receiptTotal != null && (
+          <Text style={styles.total}>${Number(receipt.receiptTotal).toFixed(2)}</Text>
         )}
         <Text style={[styles.status, statusStyle(receipt.status)]}>{statusLabel(receipt.status)}</Text>
       </View>

@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { usePointsBalance } from "../../hooks/usePointsBalance";
 
 export default function HomeScreen() {
-  const { session, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { balance, isLoading, refresh } = usePointsBalance();
 
   return (
@@ -11,7 +11,7 @@ export default function HomeScreen() {
       contentContainerStyle={styles.container}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refresh} />}
     >
-      <Text style={styles.greeting}>{session?.user.email}</Text>
+      <Text style={styles.greeting}>{user?.email}</Text>
 
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Points balance</Text>
