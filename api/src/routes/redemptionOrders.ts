@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db, pool, schema } from "../db/index.js";
 import { requireAuth } from "../auth/plugin.js";
@@ -60,6 +60,7 @@ export async function redemptionOrderRoutes(app: FastifyInstance) {
           })
           .from(schema.redemptionOrderItems)
           .innerJoin(schema.gifts, eq(schema.gifts.id, schema.redemptionOrderItems.giftId))
+          .where(inArray(schema.redemptionOrderItems.orderId, orderIds))
       : [];
 
     const itemsByOrder = new Map<string, typeof items>();
