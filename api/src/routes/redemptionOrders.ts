@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import { db, pool, schema } from "../db/index.js";
 import { requireAuth } from "../auth/plugin.js";
@@ -11,6 +11,36 @@ const cartItem = z.object({
 const redeemBody = z.object({ items: z.array(cartItem).min(1) });
 
 type PgError = Error & { code?: string };
+
+// Shared by GET /redemption-orders (own) and GET /admin/redemption-orders
+// (all) / GET /admin/users/:id/redemption-orders (one user) - same
+// orders-with-joined-items shape, just a different filter.
+export async function fetchOrdersWithItems(where?: SQL) {
+  const ordersQuery = db.select().from(schema.redemptionOrders).orderBy(desc(schema.redemptionOrders.createdAt));
+  const orders = where ? await ordersQuery.where(where) : await ordersQuery;
+
+  const orderIds = orders.map((o) => o.id);
+  const items = orderIds.length
+    ? await db
+        .select({
+          orderId: schema.redemptionOrderItems.orderId,
+          quantity: schema.redemptionOrderItems.quantity,
+          pointsCostEach: schema.redemptionOrderItems.pointsCostEach,
+          gift: schema.gifts,
+        })
+        .from(schema.redemptionOrderItems)
+        .innerJoin(schema.gifts, eq(schema.gifts.id, schema.redemptionOrderItems.giftId))
+        .where(inArray(schema.redemptionOrderItems.orderId, orderIds))
+    : [];
+
+  const itemsByOrder = new Map<string, typeof items>();
+  for (const item of items) {
+    if (!itemsByOrder.has(item.orderId)) itemsByOrder.set(item.orderId, []);
+    itemsByOrder.get(item.orderId)!.push(item);
+  }
+
+  return orders.map((o) => ({ ...o, items: itemsByOrder.get(o.id) ?? [] }));
+}
 
 export async function redemptionOrderRoutes(app: FastifyInstance) {
   // Calls the redeem_cart(uuid, jsonb) Postgres function (ported verbatim
@@ -43,32 +73,6 @@ export async function redemptionOrderRoutes(app: FastifyInstance) {
   });
 
   app.get("/redemption-orders", { preHandler: requireAuth }, async (req, reply) => {
-    const orders = await db
-      .select()
-      .from(schema.redemptionOrders)
-      .where(eq(schema.redemptionOrders.userId, req.userId!))
-      .orderBy(desc(schema.redemptionOrders.createdAt));
-
-    const orderIds = orders.map((o) => o.id);
-    const items = orderIds.length
-      ? await db
-          .select({
-            orderId: schema.redemptionOrderItems.orderId,
-            quantity: schema.redemptionOrderItems.quantity,
-            pointsCostEach: schema.redemptionOrderItems.pointsCostEach,
-            gift: schema.gifts,
-          })
-          .from(schema.redemptionOrderItems)
-          .innerJoin(schema.gifts, eq(schema.gifts.id, schema.redemptionOrderItems.giftId))
-          .where(inArray(schema.redemptionOrderItems.orderId, orderIds))
-      : [];
-
-    const itemsByOrder = new Map<string, typeof items>();
-    for (const item of items) {
-      if (!itemsByOrder.has(item.orderId)) itemsByOrder.set(item.orderId, []);
-      itemsByOrder.get(item.orderId)!.push(item);
-    }
-
-    return reply.send(orders.map((o) => ({ ...o, items: itemsByOrder.get(o.id) ?? [] })));
+    return reply.send(await fetchOrdersWithItems(eq(schema.redemptionOrders.userId, req.userId!)));
   });
 }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { loginAction, signupAction } from "./actions";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,16 +18,18 @@ export default function LoginPage() {
     setError(null);
     setIsSubmitting(true);
 
-    const supabase = createClient();
-    const { error } =
-      mode === "sign-in"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+    const result = mode === "sign-in" ? await loginAction(email, password) : await signupAction(email, password);
 
     setIsSubmitting(false);
 
-    if (error) {
-      setError(error.message);
+    if ("error" in result) {
+      setError(
+        result.error === "invalid_credentials"
+          ? "Incorrect email or password."
+          : result.error === "email_in_use"
+            ? "An account with this email already exists."
+            : "Something went wrong. Please try again.",
+      );
       return;
     }
 

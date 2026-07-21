@@ -1,8 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "../db/index.js";
 import { requireAdmin } from "../auth/plugin.js";
+import { fetchOrdersWithItems } from "./redemptionOrders.js";
 
 const createGiftBody = z.object({
   name: z.string().min(1),
@@ -60,6 +61,42 @@ export async function adminRoutes(app: FastifyInstance) {
       .where(eq(schema.pointsBalances.userId, id));
 
     return reply.send({ ...user, balance: balance?.balance ?? 0 });
+  });
+
+  app.get("/admin/users/:id/receipts", { preHandler: requireAdmin }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const rows = await db
+      .select()
+      .from(schema.receipts)
+      .where(eq(schema.receipts.userId, id))
+      .orderBy(desc(schema.receipts.createdAt));
+    return reply.send(rows);
+  });
+
+  app.get("/admin/users/:id/redemption-orders", { preHandler: requireAdmin }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    return reply.send(await fetchOrdersWithItems(eq(schema.redemptionOrders.userId, id)));
+  });
+
+  app.get("/admin/users/:id/ledger", { preHandler: requireAdmin }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const rows = await db
+      .select({
+        id: schema.pointsLedger.id,
+        entryType: schema.pointsLedger.entryType,
+        points: schema.pointsLedger.points,
+        sourceType: schema.pointsLedger.sourceType,
+        createdAt: schema.pointsLedger.createdAt,
+      })
+      .from(schema.pointsLedger)
+      .where(eq(schema.pointsLedger.userId, id))
+      .orderBy(desc(schema.pointsLedger.createdAt));
+    return reply.send(rows);
+  });
+
+  // All orders across every user - admin/orders/page.tsx's fulfillment queue.
+  app.get("/admin/redemption-orders", { preHandler: requireAdmin }, async (_req, reply) => {
+    return reply.send(await fetchOrdersWithItems());
   });
 
   app.get("/admin/gifts", { preHandler: requireAdmin }, async (_req, reply) => {
