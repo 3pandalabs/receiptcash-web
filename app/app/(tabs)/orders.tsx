@@ -69,28 +69,28 @@ export default function OrdersScreen() {
 
             {item.items.map((line, i) => (
               <Text key={i} style={styles.itemLine}>
-                {line.image_emoji ?? "🎁"} {line.quantity}x {line.gift_name}
+                {line.gift.imageEmoji ?? "🎁"} {line.quantity}x {line.gift.name}
               </Text>
             ))}
 
-            <Text style={styles.total}>{item.total_points_cost} points</Text>
+            <Text style={styles.total}>{item.totalPointsCost} points</Text>
 
-            {item.tracking_number && (
+            {item.trackingNumber && (
               <Pressable
                 onPress={() => {
-                  if (/^https?:\/\//i.test(item.tracking_number ?? "")) {
-                    Linking.openURL(item.tracking_number!);
+                  if (/^https?:\/\//i.test(item.trackingNumber ?? "")) {
+                    Linking.openURL(item.trackingNumber!);
                   }
                 }}
               >
                 <Text style={styles.tracking}>
-                  Tracking: {item.tracking_number}
-                  {/^https?:\/\//i.test(item.tracking_number) ? " (tap to track) 🚚" : ""}
+                  Tracking: {item.trackingNumber}
+                  {/^https?:\/\//i.test(item.trackingNumber) ? " (tap to track) 🚚" : ""}
                 </Text>
               </Pressable>
             )}
 
-            <Text style={styles.date}>{new Date(item.created_at).toLocaleDateString()}</Text>
+            <Text style={styles.date}>{new Date(item.createdAt).toLocaleDateString()}</Text>
           </View>
         )}
       />

@@ -1,0 +1,18 @@
+# Local dev only: a throwaway Postgres to develop/test the api/ service against.
+# Production Postgres is a separate Coolify-managed resource (receiptcash-postgres,
+# on the same box as nrighar-postgres) - this file is never used in prod.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: receiptcash
+      POSTGRES_PASSWORD: receiptcash
+      POSTGRES_DB: receiptcash
+    ports:
+      - "5432:5432"
+    volumes:
+      - receiptcash-dev-pgdata:/var/lib/postgresql/data
+
+volumes:
+  receiptcash-dev-pgdata:

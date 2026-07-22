@@ -5,7 +5,7 @@ import { ActivityIndicator, View } from "react-native";
 import { AuthProvider, useAuth } from "../hooks/useAuth";
 
 function RootNavigation() {
-  const { session, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -14,12 +14,12 @@ function RootNavigation() {
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (!session && !inAuthGroup) {
+    if (!user && !inAuthGroup) {
       router.replace("/(auth)/sign-in");
-    } else if (session && inAuthGroup) {
+    } else if (user && inAuthGroup) {
       router.replace("/(tabs)");
     }
-  }, [session, isLoading, segments, router]);
+  }, [user, isLoading, segments, router]);
 
   if (isLoading) {
     return (

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useGifts, type Gift } from "../../hooks/useGifts";
 import { usePointsBalance } from "../../hooks/usePointsBalance";
-import { supabase } from "../../lib/supabase";
+import { redeemCart } from "../../lib/api";
 import { getErrorMessage } from "../../lib/errors";
 
 export default function RedeemScreen() {
@@ -20,7 +20,7 @@ export default function RedeemScreen() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const cartTotal = useMemo(() => {
-    return gifts.reduce((sum, gift) => sum + (cart[gift.id] ?? 0) * gift.points_cost, 0);
+    return gifts.reduce((sum, gift) => sum + (cart[gift.id] ?? 0) * gift.pointsCost, 0);
   }, [cart, gifts]);
 
   const cartItemCount = useMemo(
@@ -31,7 +31,7 @@ export default function RedeemScreen() {
   function updateQuantity(gift: Gift, delta: number) {
     setCart((prev) => {
       const current = prev[gift.id] ?? 0;
-      const max = gift.stock_level ?? Infinity;
+      const max = gift.stockLevel ?? Infinity;
       const next = Math.max(0, Math.min(current + delta, max));
       const updated = { ...prev, [gift.id]: next };
       if (next === 0) delete updated[gift.id];
@@ -45,22 +45,7 @@ export default function RedeemScreen() {
 
     setIsCheckingOut(true);
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-
-      const { error } = await supabase.functions.invoke("redeem-cart", {
-        body: { items },
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
-      });
-
-      if (error) {
-        const context = (error as { context?: Response }).context;
-        if (context) {
-          const body = await context.json().catch(() => null);
-          throw new Error(body?.error ?? "Checkout failed");
-        }
-        throw error;
-      }
+      await redeemCart(items);
 
       Alert.alert("Order placed!", "Your redemption is being processed.");
       setCart({});
@@ -89,18 +74,18 @@ export default function RedeemScreen() {
         }
         renderItem={({ item }) => {
           const quantity = cart[item.id] ?? 0;
-          const outOfStock = item.stock_level !== null && item.stock_level <= 0;
-          const atMax = item.stock_level !== null && quantity >= item.stock_level;
+          const outOfStock = item.stockLevel !== null && item.stockLevel <= 0;
+          const atMax = item.stockLevel !== null && quantity >= item.stockLevel;
           return (
             <View style={styles.card}>
-              <Text style={styles.emoji}>{item.image_emoji ?? "🎁"}</Text>
+              <Text style={styles.emoji}>{item.imageEmoji ?? "🎁"}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={styles.giftName}>{item.name}</Text>
                 {item.description && <Text style={styles.giftDesc}>{item.description}</Text>}
-                <Text style={styles.giftCost}>{item.points_cost} points</Text>
+                <Text style={styles.giftCost}>{item.pointsCost} points</Text>
                 {outOfStock && <Text style={styles.outOfStock}>Out of stock</Text>}
-                {!outOfStock && item.stock_level !== null && (
-                  <Text style={styles.stock}>{item.stock_level} left</Text>
+                {!outOfStock && item.stockLevel !== null && (
+                  <Text style={styles.stock}>{item.stockLevel} left</Text>
                 )}
               </View>
               {!outOfStock && (

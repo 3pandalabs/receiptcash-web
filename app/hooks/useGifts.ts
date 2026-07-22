@@ -1,25 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { getGifts, type ApiGift } from "../lib/api";
 
-export type Gift = {
-  id: string;
-  name: string;
-  description: string | null;
-  points_cost: number;
-  stock_level: number | null;
-  image_emoji: string | null;
-};
+export type Gift = ApiGift;
 
 export function useGifts() {
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const { data } = await supabase
-      .from("gifts")
-      .select("id, name, description, points_cost, stock_level, image_emoji")
-      .order("points_cost", { ascending: true });
-    setGifts(data ?? []);
+    const data = await getGifts();
+    setGifts([...data].sort((a, b) => a.pointsCost - b.pointsCost));
     setIsLoading(false);
   }, []);
 
