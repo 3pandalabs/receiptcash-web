@@ -1,6 +1,6 @@
 # receiptcash-api routes
 
-Base URL: `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL` (e.g. `https://api.receiptcash.3pandalabs.com`, `http://localhost:8080` in dev).
+Base URL: `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL` (e.g. `https://receiptcash-api.3pandalabs.com`, `http://localhost:8080` in dev).
 
 Auth: `Authorization: Bearer <accessToken>` header. Access tokens expire in 15 minutes — callers must catch 401s and call `POST /auth/refresh`, then retry once.
 

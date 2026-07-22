@@ -31,10 +31,10 @@ Scope decisions locked in before starting (do not re-litigate mid-migration):
 - [ ] `receiptcash-postgres` Coolify resource added to the existing box.
 - [ ] `receiptcash-documents` + `receiptcash-backups` R2 buckets created; `receiptcash-backups` registered as a Coolify global S3 Storage destination; scheduled backup added and manually triggered once to confirm.
 - [ ] `receiptcash-api` Coolify resource deployed: Base Directory `api`, Dockerfile Location bare `Dockerfile`, Ports Exposes `8080`, both Domains set with `https://` scheme from the first deploy.
-- [ ] DNS: `api.receiptcash.3pandalabs.com` (proxied) + `api-internal.receiptcash.3pandalabs.com` (DNS-only) both added, pointing at the existing box IP.
+- [ ] DNS: `receiptcash-api.3pandalabs.com` (proxied) + `receiptcash-api-internal.3pandalabs.com` (DNS-only) both added, pointing at the existing box IP. Single-label subdomains, not `api.receiptcash.*` — see infra/README.md's double-subdomain cert gotcha.
 - [ ] Schema migration run via `docker exec ... node dist/db/migrate.js`; verified via `psql \dt`.
 - [ ] 3 placeholder gifts reseeded (values from Supabase migrations `0004`/`0010`).
-- [ ] `curl -I https://api.receiptcash.3pandalabs.com/health` → 200; port 5432 confirmed unreachable externally.
+- [ ] `curl -I https://receiptcash-api.3pandalabs.com/health` → 200; port 5432 confirmed unreachable externally.
 
 ## 4. Smoke-test the live API directly (before touching web/mobile deploys)
 

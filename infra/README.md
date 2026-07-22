@@ -43,8 +43,10 @@ Yields: `R2_ACCOUNT_ID` (same account as NRIGhar, so this value is already known
 - **Base Directory:** `api`. **Dockerfile Location:** `Dockerfile` — bare, relative to Base Directory. (`api/Dockerfile` here doubles the path and fails the build — the exact bug NRIGhar hit and fixed in commit `a286d3c`.)
 - **Ports Exposes:** `8080` explicitly (Coolify's `3000` default causes a working build to still 502 — NRIGhar's `d0f1c3d`).
 - **Domains:** set **both** from day one, each **with the `https://` scheme** (a scheme-less value produces a broken Traefik rule with an empty Host matcher — NRIGhar's `64b93f0`):
-  - `https://api.receiptcash.3pandalabs.com` (public)
-  - `https://api-internal.receiptcash.3pandalabs.com` (server-side-only; pre-empts the Cloudflare "orange-to-orange" same-account block that only bit NRIGhar *after* it was already live — see §5)
+  - `https://receiptcash-api.3pandalabs.com` (public)
+  - `https://receiptcash-api-internal.3pandalabs.com` (server-side-only; pre-empts the Cloudflare "orange-to-orange" same-account block that only bit NRIGhar *after* it was already live — see §5)
+
+**Gotcha (hit 2026-07-22): don't use a double-level subdomain (`api.receiptcash.3pandalabs.com`).** Cloudflare's free Universal SSL cert only covers the apex + one wildcard label (`*.3pandalabs.com`) — a second-level name like `api.receiptcash.3pandalabs.com` gets no edge certificate at all (browser fails with `ERR_SSL_VERSION_OR_CIPHER_MISMATCH`, even though the origin's own Let's Encrypt cert is fine). Fixing it properly requires Total TLS, which needs the paid Advanced Certificate Manager add-on. Cheaper fix: keep every Coolify-fronted hostname a single label under `3pandalabs.com` (`receiptcash-api.3pandalabs.com`, not `api.receiptcash.3pandalabs.com`) — covered by the free wildcard, no ACM needed. (NRIGhar's `api.nrighar.3pandalabs.com` happens to work anyway — likely a leftover cert from a period when Total TLS was briefly on — but don't copy that shape for new hostnames.)
 
 Environment variables (authoritative list will live in `api/.env.example` once the service exists):
 
@@ -66,8 +68,8 @@ Environment variables (authoritative list will live in `api/.env.example` once t
 ## 4. DNS
 
 Two A records, both → the box's existing public IPv4 (same one NRIGhar's API uses):
-- `api.receiptcash.3pandalabs.com` — **Proxied (orange cloud)**. The zone is already set to Full(strict) SSL from NRIGhar's hardening pass, so no per-record TLS config needed.
-- `api-internal.receiptcash.3pandalabs.com` — **DNS-only (grey cloud)**, never proxied. This is the Cloudflare-orange-to-orange workaround hostname — see §5.
+- `receiptcash-api.3pandalabs.com` — **Proxied (orange cloud)**. The zone is already set to Full(strict) SSL from NRIGhar's hardening pass, so no per-record TLS config needed — but see the double-subdomain gotcha in §3, this hostname shape matters for cert coverage.
+- `receiptcash-api-internal.3pandalabs.com` — **DNS-only (grey cloud)**, never proxied. This is the Cloudflare-orange-to-orange workaround hostname — see §5.
 
 ## 5. The Cloudflare "orange-to-orange" (O2O) issue — avoid it from day one
 
@@ -85,7 +87,7 @@ Since this is a clean start (no `scripts/migrate-data.ts` run — see top of thi
 
 ## 7. Verify
 
-- `curl -I https://api.receiptcash.3pandalabs.com/health` → `200` with a valid cert (no `-k`).
+- `curl -I https://receiptcash-api.3pandalabs.com/health` → `200` with a valid cert (no `-k`).
 - `docker ps` on the box shows `receiptcash-postgres` and `receiptcash-api` healthy **alongside** the existing `nrighar-postgres`/`nrighar-api` containers (don't disturb those).
 - Confirm port 5432 is not reachable from outside for either Postgres resource.
 - Manual smoke test against the live API directly (signup, login, upload a real receipt image, confirm Textract OCR + points credit, redeem a gift, hit an admin route) **before** touching the web/mobile deploys — same order NRIGhar's checklist used.

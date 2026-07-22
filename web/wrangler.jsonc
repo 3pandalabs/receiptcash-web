@@ -22,13 +22,13 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "NEXT_PUBLIC_API_URL": "https://api.receiptcash.3pandalabs.com",
+    "NEXT_PUBLIC_API_URL": "https://receiptcash-api.3pandalabs.com",
     "NEXT_PUBLIC_SITE_URL": "https://receiptcash.3pandalabs.com",
     // DNS-only (unproxied) hostname for the same origin - see
     // lib/api/client.ts for why server-side calls need this instead of
     // NEXT_PUBLIC_API_URL (Cloudflare "orange-to-orange" 403 between two
     // Cloudflare-proxied hostnames on the same account).
-    "INTERNAL_API_URL": "https://api-internal.receiptcash.3pandalabs.com"
+    "INTERNAL_API_URL": "https://receiptcash-api-internal.3pandalabs.com"
   }
   // JWT_SECRET (if ever needed client-side) must be set as a Worker secret,
   // not a plaintext var: npx wrangler secret put JWT_SECRET
