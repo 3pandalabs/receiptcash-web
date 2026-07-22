@@ -16,6 +16,11 @@ export const r2 = new S3Client({
     accessKeyId: env.R2_ACCESS_KEY_ID,
     secretAccessKey: env.R2_SECRET_ACCESS_KEY,
   },
+  // AWS SDK v3 defaults to always attaching a CRC32 request checksum, which
+  // R2 doesn't honor the same way S3 does - presigned PUT URLs come back
+  // AccessDenied for any client that doesn't replicate the exact checksum
+  // added at signing time. Only compute one when a command explicitly asks.
+  requestChecksumCalculation: "WHEN_REQUIRED",
 });
 
 const UPLOAD_URL_TTL_SECONDS = 5 * 60;
