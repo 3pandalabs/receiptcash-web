@@ -21,6 +21,9 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "routes": [
+    { "pattern": "receiptcash.3pandalabs.com", "custom_domain": true }
+  ],
   "vars": {
     "NEXT_PUBLIC_API_URL": "https://receiptcash-api.3pandalabs.com",
     "NEXT_PUBLIC_SITE_URL": "https://receiptcash.3pandalabs.com",
