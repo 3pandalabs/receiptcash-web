@@ -1,6 +1,6 @@
 #!/bin/bash
 # 3PandaLabs Claude Code on the web setup: org git identity + dev CLIs.
-# Mirrors 3pandalabs/ops/claude-setup/setup.sh (the source of truth for local
+# Mirrors 3pandalabs/knowledge_base/claude-setup/setup.sh (the source of truth for local
 # machines) so a web session has the same toolchain any org repo expects.
 set -euo pipefail
 
@@ -18,7 +18,7 @@ cat > "$GITCONFIG_ORG" <<'GITEOF'
 GITEOF
 git config --global 'includeIf.hasconfig:remote.*.url:https://github.com/3pandalabs/**.path' "$GITCONFIG_ORG"
 
-# --- Dev CLIs (see 3pandalabs/ops tech-stack.md "DEV TOOLS" section; keep in
+# --- Dev CLIs (see 3pandalabs/knowledge_base tech-stack.md "DEV TOOLS" section; keep in
 # sync with that list and with ops/claude-setup/setup.sh / setup.ps1) ---
 if ! command -v gh >/dev/null 2>&1; then
   echo "Installing GitHub CLI (gh)..."
