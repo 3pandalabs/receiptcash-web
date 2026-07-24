@@ -18,3 +18,4 @@ Single monorepo, plain subdirectories (not submodules) — each client is its ow
 - A resource that exists but isn't the caller's returns **404** from `api/`, never 403 — don't rely on 403 to distinguish "forbidden" from "doesn't exist" (see `api/ROUTES.md`).
 - History note: merged from former `receiptcash-web` + `receiptcash-app` repos (2026-07-18); both histories preserved.
 - `ops/tech-stack.md` in the private `3pandalabs/ops` repo is the source of truth for current live infra (server IPs, DNS, deployment status); this file only orients you around the code layout.
+- The `3pandalabs-admin` repo (`admin.3pandalabs.com`) has hand-authored request-flow diagrams for this app. Any change to `api/` routing, auth/session flow, middleware order, or OCR/receipt processing dispatch should be reflected in that repo's `public/index.html` ReceiptCash section too — see its `CLAUDE.md` ("Keeping request-flow diagrams current").
